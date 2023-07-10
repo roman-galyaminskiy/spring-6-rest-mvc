@@ -3,7 +3,7 @@ package guru.springframework.spring6restmvc.services;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class BeerServiceImplTest {
+class BeerDTOServiceImplTest {
 
     private BeerServiceImpl beerService;
 

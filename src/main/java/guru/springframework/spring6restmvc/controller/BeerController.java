@@ -1,6 +1,7 @@
 package guru.springframework.spring6restmvc.controller;
 
-import guru.springframework.spring6restmvc.model.Beer;
+import guru.springframework.spring6restmvc.exceptions.NotFoundException;
+import guru.springframework.spring6restmvc.model.BeerDTO;
 import guru.springframework.spring6restmvc.services.BeerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,30 +27,30 @@ public class BeerController {
 
     @GetMapping({"", "/"})
 
-    public List<Beer> listBeers(){
+    public List<BeerDTO> listBeers(){
         return beerService.listBeers();
     }
 
     @GetMapping(BEER_ID)
-    public Beer getBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id){
+    public BeerDTO getBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id){
         log.debug("Get Beer by Id - in controller");
-        return beerService.getBeerById(id);
+        return beerService.getBeerById(id).orElseThrow(NotFoundException::new);
     }
 
     @PostMapping("/new")
-    public ResponseEntity<String> createNewBeer(@RequestBody Beer beer) {
-        Beer savedBeer = beerService.save(beer);
-        return new ResponseEntity<>(savedBeer.getId().toString(), HttpStatus.CREATED);
+    public ResponseEntity<String> createNewBeer(@RequestBody BeerDTO beerDTO) {
+        BeerDTO savedBeerDTO = beerService.save(beerDTO);
+        return new ResponseEntity<>(savedBeerDTO.getId().toString(), HttpStatus.CREATED);
     }
 
     @PatchMapping(BEER_ID)
-    public ResponseEntity<Beer> updateBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody Beer patch){
+    public ResponseEntity<BeerDTO> updateBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody BeerDTO patch){
         return new ResponseEntity<>(beerService.updateBeerById(id, patch),
                 HttpStatus.OK);
     }
 
     @PutMapping(BEER_ID)
-    public ResponseEntity<Beer> replaceBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody Beer replacement){
+    public ResponseEntity<BeerDTO> replaceBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody BeerDTO replacement){
         return new ResponseEntity<>(beerService.replaceBeerById(id, replacement),
                 HttpStatus.OK);
     }
@@ -59,5 +60,10 @@ public class BeerController {
         beerService.deleteById(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    // @ExceptionHandler(BeerNotFoundException.class)
+    // public ResponseEntity handleBeerNotFound() {
+    //     return ResponseEntity.notFound().build();
+    // }
 
 }
