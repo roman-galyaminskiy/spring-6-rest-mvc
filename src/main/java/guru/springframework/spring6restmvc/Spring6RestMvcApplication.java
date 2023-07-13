@@ -1,5 +1,6 @@
 package guru.springframework.spring6restmvc;
 
+import guru.springframework.spring6restmvc.entities.Beer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

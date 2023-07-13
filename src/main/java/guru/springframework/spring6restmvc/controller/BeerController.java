@@ -3,8 +3,10 @@ package guru.springframework.spring6restmvc.controller;
 import guru.springframework.spring6restmvc.exceptions.NotFoundException;
 import guru.springframework.spring6restmvc.model.BeerDTO;
 import guru.springframework.spring6restmvc.services.BeerService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,32 +40,45 @@ public class BeerController {
     }
 
     @PostMapping("/new")
-    public ResponseEntity<String> createNewBeer(@RequestBody BeerDTO beerDTO) {
+    public ResponseEntity<String> createNewBeer(@Valid @RequestBody BeerDTO beerDTO) {
         BeerDTO savedBeerDTO = beerService.save(beerDTO);
-        return new ResponseEntity<>(savedBeerDTO.getId().toString(), HttpStatus.CREATED);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Location", BEER_API_URL + "/" + savedBeerDTO.getId().toString());
+        return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @PatchMapping(BEER_ID)
-    public ResponseEntity<BeerDTO> updateBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody BeerDTO patch){
-        return new ResponseEntity<>(beerService.updateBeerById(id, patch),
-                HttpStatus.OK);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateBeerById(@Valid @PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody BeerDTO patch){
+        beerService.updateBeerById(id, patch);
     }
 
     @PutMapping(BEER_ID)
-    public ResponseEntity<BeerDTO> replaceBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody BeerDTO replacement){
-        return new ResponseEntity<>(beerService.replaceBeerById(id, replacement),
-                HttpStatus.OK);
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void replaceBeerById(@Valid @PathVariable(BEER_ID_PATH_VARIABLE) UUID id, @RequestBody BeerDTO replacement){
+        BeerDTO beerDTO = beerService.replaceBeerById(id, replacement);
+
+        if (beerDTO == null) {
+            throw new NotFoundException();
+        }
     }
 
     @DeleteMapping(BEER_ID)
-    public ResponseEntity deleteBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id){
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteBeerById(@PathVariable(BEER_ID_PATH_VARIABLE) UUID id){
         beerService.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     // @ExceptionHandler(BeerNotFoundException.class)
     // public ResponseEntity handleBeerNotFound() {
     //     return ResponseEntity.notFound().build();
+    // }
+
+    // @DeleteMapping()
+    // @ResponseStatus(HttpStatus.OK)
+    // public void deleteByBody(@RequestBody BeerDTO test) {
+    //     System.out.println(test.getId());
     // }
 
 }

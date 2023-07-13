@@ -1,6 +1,7 @@
-package guru.springframework.spring6restmvc.services;
+package guru.springframework.spring6restmvc.services.impl;
 
 import guru.springframework.spring6restmvc.model.CustomerDTO;
+import guru.springframework.spring6restmvc.services.CustomerService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -47,12 +48,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void patchCustomerById(UUID customerId, CustomerDTO customer) {
+    public CustomerDTO updateCustomerById(UUID customerId, CustomerDTO customer) {
         CustomerDTO existing = customerMap.get(customerId);
 
         if (StringUtils.hasText(customer.getName())) {
             existing.setName(customer.getName());
         }
+        return existing;
     }
 
     @Override
@@ -61,9 +63,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void updateCustomerById(UUID customerId, CustomerDTO customer) {
+    public CustomerDTO replaceCustomerById(UUID customerId, CustomerDTO customer) {
         CustomerDTO existing = customerMap.get(customerId);
         existing.setName(customer.getName());
+        return existing;
     }
 
     @Override

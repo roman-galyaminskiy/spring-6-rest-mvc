@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    username: "${db_user:postgres}"
+    password: "${db_passwd:postgres}"
+    url: "${db_url}"
+    hikari:
+      schema: "beerworks"
+    driver-class-name: org.postgresql.Driver
+
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
