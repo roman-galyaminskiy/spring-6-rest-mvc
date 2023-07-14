@@ -28,7 +28,7 @@ import java.time.LocalDateTime;
 public class Beer extends VersionedEntity {
 
     @NotNull
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String beerName;
     @NotNull
     @Column(nullable = false)
