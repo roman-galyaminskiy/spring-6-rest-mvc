@@ -1,14 +1,14 @@
 package guru.springframework.spring6restmvc.entities;
 
-import guru.springframework.spring6restmvc.model.BeerStyle;
-// import jakarta.persistence.Entity;
 import jakarta.persistence.Entity;
-import lombok.*;
+import jakarta.validation.constraints.Email;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -24,6 +24,9 @@ public class Customer extends VersionedEntity {
     private String name;
     @CreationTimestamp
     private LocalDateTime createdDate;
+
+    @Email
+    private String email;
 
     @UpdateTimestamp
     private LocalDateTime updateDate;

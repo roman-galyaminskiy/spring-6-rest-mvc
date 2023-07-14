@@ -1,16 +1,31 @@
 spring:
   datasource:
-    username: "${db_user:postgres}"
-    password: "${db_passwd:postgres}"
-    url: "${db_url}"
+    username: ${db_user:postgres}
+    password: ${db_passwd:postgres}
+    url: ${db_url}
     hikari:
-      schema: "beerworks"
+      schema: beerworks
+      pool-name: beerworks-pool
+      maximum-pool-size: 2
     driver-class-name: org.postgresql.Driver
-
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate.format_sql: true
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    enabled: true
+
+#      jakarta:
+#        persistence:
+#          schema-generation:
+#            scripts:
+#              action: drop-and-create
+#              drop-target: drop-and-create.sql
+#              create-source: metadata
+#              create-target: drop-and-create.sql
