@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,23 +38,23 @@ class BeerRepositoryTest {
 
     @Test
     void listBeersWithNameLike() {
-        Set<Beer> beer = repository.findAllByBeerNameLike("t%");
+        Page<Beer> beer = repository.findAllByBeerNameLike("t%", null);
 
-        assertThat(beer.size()).isEqualTo(1);
+        assertThat(beer.getTotalElements()).isEqualTo(1);
     }
 
     @Test
     void listBeersWithNameLikeAndStyle() {
-        Set<Beer> beer = repository.findAllByBeerNameLikeAndBeerStyle("t%", BeerStyle.LAGER);
+        Page<Beer> beer = repository.findAllByBeerNameLikeAndBeerStyle("t%", BeerStyle.LAGER, null);
 
-        assertThat(beer.size()).isEqualTo(1);
+        assertThat(beer.getTotalElements()).isEqualTo(1);
     }
 
     @Test
     void noBeersWithNameLikeAndStyle() {
-        Set<Beer> beer = repository.findAllByBeerNameLikeAndBeerStyle("taaa%", BeerStyle.LAGER);
+        Page<Beer> beer = repository.findAllByBeerNameLikeAndBeerStyle("taaa%", BeerStyle.LAGER, null);
 
-        assertThat(beer.size()).isEqualTo(0);
+        assertThat(beer.getTotalElements()).isEqualTo(0);
     }
 
     @Transactional

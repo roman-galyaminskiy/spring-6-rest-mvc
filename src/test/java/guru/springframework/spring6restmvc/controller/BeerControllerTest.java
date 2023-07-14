@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -72,16 +73,16 @@ class BeerControllerTest {
     @Test
     void listBeers() throws Exception {
         // when
-        when(beerService.listBeers(any(), any())).thenReturn(beerDTOList);
+        when(beerService.listBeers(any(), any(), any(), any())).thenReturn(new PageImpl(beerDTOList));
 
-        // assert
+        // then
         mockMvc.perform(
                         get(BEER_API_URL)
                                 .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].id", is(beerDTOList.get(0).getId().toString())))
-                .andExpect(jsonPath("$.[1].id", is(beerDTOList.get(1).getId().toString())));
+                .andExpect(jsonPath("$.content.[0].id", is(beerDTOList.get(0).getId().toString())))
+                .andExpect(jsonPath("$.content.[1].id", is(beerDTOList.get(1).getId().toString())));
     }
 
     @Test
@@ -90,7 +91,7 @@ class BeerControllerTest {
         // when
         when(beerService.getBeerById(any())).thenReturn(Optional.of(beerDTOList.get(0)));
 
-        // assert
+        // then
         mockMvc.perform(
                         get(BY_BEER_ID_URL, beerDTOList.get(0).getId())
                                 .accept(MediaType.APPLICATION_JSON)
@@ -105,7 +106,7 @@ class BeerControllerTest {
         // when
         when(beerService.save(any())).thenReturn(beerDTOList.get(0));
 
-        // assert
+        // then
         mockMvc.perform(
                         post(BEER_API_URL + "/new")
                                 .content(objectMapper.writeValueAsString(beerDTOList.get(0)))
@@ -123,7 +124,7 @@ class BeerControllerTest {
                 .price(BigDecimal.ONE)
                 .build();
 
-        // assert
+        // then
         MvcResult result = mockMvc.perform(
                         post(BEER_API_URL + "/new")
                                 .content(objectMapper.writeValueAsString(dto))
@@ -145,7 +146,7 @@ class BeerControllerTest {
                 .price(BigDecimal.ONE)
                 .build();
 
-        // assert
+        // then
         MvcResult result = mockMvc.perform(
                         post(BEER_API_URL + "/new")
                                 .content(objectMapper.writeValueAsString(dto))
@@ -165,7 +166,7 @@ class BeerControllerTest {
         // when
         when(beerService.updateBeerById(any(), any())).thenReturn(beerDTOList.get(0));
 
-        // assert
+        // then
         mockMvc.perform(
                         patch(BY_BEER_ID_URL, beerDTOList.get(0).getId())
                                 .content(objectMapper.writeValueAsString(beerDTOList.get(0)))
@@ -181,7 +182,7 @@ class BeerControllerTest {
         // when
         when(beerService.replaceBeerById(any(), any())).thenReturn(beerDTOList.get(0));
 
-        // assert
+        // then
         mockMvc.perform(
                         put(BY_BEER_ID_URL, beerDTOList.get(0).getId())
                                 .content(objectMapper.writeValueAsString(beerDTOList.get(0)))
@@ -194,7 +195,7 @@ class BeerControllerTest {
 
     @Test
     void deleteBeerById() throws Exception {
-        // assert
+        // then
         mockMvc.perform(delete(BY_BEER_ID_URL, beerDTOList.get(0).getId()))
                 .andExpect(status().isNoContent());
 

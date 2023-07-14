@@ -8,8 +8,13 @@ import guru.springframework.spring6restmvc.model.BeerStyle;
 import guru.springframework.spring6restmvc.repositories.BeerRepository;
 import guru.springframework.spring6restmvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Primary
 @RequiredArgsConstructor
 @Service
@@ -26,23 +32,36 @@ public class BeerServiceJPAImpl implements BeerService {
 
     private final BeerMapper beerMapper;
 
-    @Override
-    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
-        List<Beer> dtos = new ArrayList<>();
+    private Pageable buildPageble(Integer page, Integer limit) {
+        int requestPage = page == null ? DEFAULT_PAGE : page;
+        int requestPageSize = limit == null ? DEFAULT_LIMIT : limit;
 
-        if (StringUtils.isBlank(beerName) && beerStyle == null) {
-            dtos.addAll(beerRepository.findAll());
-        } else if (!StringUtils.isBlank(beerName) && beerStyle == null) {
-            dtos.addAll(
-                beerRepository.findAllByBeerNameLike("%" + beerName + "%"));
-        } else if (!StringUtils.isBlank(beerName) && beerStyle != null) {
-            dtos.addAll(
-                beerRepository.findAllByBeerNameLikeAndBeerStyle("%" + beerName + "%", beerStyle));
+        if (requestPageSize > LIMIT_THRESHOLD) {
+            log.warn("limit {} is over the threshold {}", requestPageSize, LIMIT_THRESHOLD);
+            requestPageSize = LIMIT_THRESHOLD;
         }
 
-        return dtos.stream()
-                .map(beerMapper::entityToDto)
-                .toList();
+        Sort sort = Sort.by("beerName");
+        return PageRequest.of(requestPage - 1, requestPageSize, sort);
+    }
+
+    @Override
+    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Integer page, Integer limit) {
+        Page<Beer> beerPage;
+
+        Pageable pageable = buildPageble(page, limit);
+
+        if (!StringUtils.isBlank(beerName) && beerStyle == null) {
+            beerPage = beerRepository.findAllByBeerNameLike("%" + beerName + "%", pageable);
+        } else if (StringUtils.isBlank(beerName) && beerStyle != null) {
+            beerPage = beerRepository.findAllByBeerStyle(beerStyle, pageable);
+        } else if (!StringUtils.isBlank(beerName) && beerStyle != null) {
+            beerPage = (beerRepository.findAllByBeerNameLikeAndBeerStyle("%" + beerName + "%", beerStyle, pageable));
+        } else {
+            beerPage = beerRepository.findAll(pageable);
+        }
+
+        return beerPage.map(beerMapper::entityToDto);
     }
 
     @Override

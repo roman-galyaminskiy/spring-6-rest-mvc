@@ -6,6 +6,8 @@ import guru.springframework.spring6restmvc.model.BeerStyle;
 import guru.springframework.spring6restmvc.services.BeerService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -67,17 +69,17 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
+    public Page<BeerDTO> listBeers(String beerName, BeerStyle beerStyle, Integer page, Integer limit) {
         Stream<BeerDTO> stream = beerMap.values().stream();
-        if (StringUtils.isBlank(beerName)) {
+        if (!StringUtils.isBlank(beerName)) {
             stream = stream.filter(beerDTO -> beerDTO.getBeerName().matches(
                     beerName.replace('%', '*')));
         }
-        if (beerStyle == null) {
+        if (beerStyle != null) {
             stream = stream.filter(beerDTO -> beerDTO.getBeerStyle() == beerStyle);
         }
 
-        return stream.toList();
+        return new PageImpl<>(stream.toList());
     }
 
     @Override

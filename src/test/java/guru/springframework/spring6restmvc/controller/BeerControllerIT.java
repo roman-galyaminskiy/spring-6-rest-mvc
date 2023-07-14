@@ -11,12 +11,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
@@ -27,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static guru.springframework.spring6restmvc.controller.BeerController.BEER_API_URL;
+import static guru.springframework.spring6restmvc.services.BeerService.DEFAULT_LIMIT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -38,7 +41,6 @@ import static org.hamcrest.Matchers.is;
 @SpringBootTest
 class BeerControllerIT {
 
-    public static final int NUMBER_OF_BEERS = 2413;
     @Autowired
     BeerController beerController;
 
@@ -65,26 +67,30 @@ class BeerControllerIT {
 
     @Test
     void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers(null, null);
+        Page<BeerDTO> dtos = beerController.listBeers(null, null, null, null);
 
-        assertThat(dtos.size()).isEqualTo(NUMBER_OF_BEERS);
+        assertThat(dtos.getContent().size()).isEqualTo(DEFAULT_LIMIT);
     }
 
     @Test
     void testListBeersByName() throws Exception {
         mockMvc.perform(get(BEER_API_URL)
-                .queryParam("beerName", "IPA"))
+                        .queryParam("beerName", "IPA")
+                        .queryParam("pageNumber", "1")
+                        .queryParam("pageSize", "1000"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(336)));
+                .andExpect(jsonPath("$.content.length()", is(336)));
     }
 
     @Test
     void testListBeersByNameAndStyle() throws Exception {
         mockMvc.perform(get(BEER_API_URL)
                         .queryParam("beerName", "IPA")
-                        .queryParam("beerStyle", BeerStyle.IPA.toString()))
+                        .queryParam("beerStyle", BeerStyle.IPA.toString())
+                        .queryParam("pageNumber", "1")
+                        .queryParam("pageSize", "1000"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(310)));
+                .andExpect(jsonPath("$.content.length()", is(310)));
     }
 
     @Rollback
@@ -92,9 +98,9 @@ class BeerControllerIT {
     @Test
     void testEmptyList() {
         beerRepository.deleteAll();
-        List<BeerDTO> dtos = beerController.listBeers(null, null);
+        Page<BeerDTO> dtos = beerController.listBeers(null, null, null, null);
 
-        assertThat(dtos.size()).isEqualTo(0);
+        assertThat(dtos.getTotalElements()).isEqualTo(0);
     }
 
     @Test
