@@ -1,10 +1,7 @@
 package guru.springframework.spring6restmvc.entities;
 
 import guru.springframework.spring6restmvc.model.BeerStyle;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +29,7 @@ public class Beer extends VersionedEntity {
     private String beerName;
     @NotNull
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private BeerStyle beerStyle;
     @NotNull
     @Column(nullable = false)

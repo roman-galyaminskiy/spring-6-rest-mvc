@@ -72,7 +72,7 @@ class BeerControllerTest {
     @Test
     void listBeers() throws Exception {
         // when
-        when(beerService.listBeers()).thenReturn(beerDTOList);
+        when(beerService.listBeers(any(), any())).thenReturn(beerDTOList);
 
         // assert
         mockMvc.perform(

@@ -5,11 +5,13 @@ import guru.springframework.spring6restmvc.model.BeerDTO;
 import guru.springframework.spring6restmvc.model.BeerStyle;
 import guru.springframework.spring6restmvc.services.BeerService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * Created by jt, Spring Framework Guru.
@@ -65,8 +67,17 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public List<BeerDTO> listBeers(){
-        return new ArrayList<>(beerMap.values());
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
+        Stream<BeerDTO> stream = beerMap.values().stream();
+        if (StringUtils.isBlank(beerName)) {
+            stream = stream.filter(beerDTO -> beerDTO.getBeerName().matches(
+                    beerName.replace('%', '*')));
+        }
+        if (beerStyle == null) {
+            stream = stream.filter(beerDTO -> beerDTO.getBeerStyle() == beerStyle);
+        }
+
+        return stream.toList();
     }
 
     @Override

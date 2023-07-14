@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,6 +33,27 @@ class BeerRepositoryTest {
                 .upc("1234123412341")
                 .price(BigDecimal.ONE)
                 .build());
+    }
+
+    @Test
+    void listBeersWithNameLike() {
+        Set<Beer> beer = repository.findAllByBeerNameLike("t%");
+
+        assertThat(beer.size()).isEqualTo(1);
+    }
+
+    @Test
+    void listBeersWithNameLikeAndStyle() {
+        Set<Beer> beer = repository.findAllByBeerNameLikeAndBeerStyle("t%", BeerStyle.LAGER);
+
+        assertThat(beer.size()).isEqualTo(1);
+    }
+
+    @Test
+    void noBeersWithNameLikeAndStyle() {
+        Set<Beer> beer = repository.findAllByBeerNameLikeAndBeerStyle("taaa%", BeerStyle.LAGER);
+
+        assertThat(beer.size()).isEqualTo(0);
     }
 
     @Transactional

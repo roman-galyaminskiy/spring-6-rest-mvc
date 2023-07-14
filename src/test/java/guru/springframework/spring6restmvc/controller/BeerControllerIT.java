@@ -29,6 +29,7 @@ import java.util.UUID;
 import static guru.springframework.spring6restmvc.controller.BeerController.BEER_API_URL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,15 +64,27 @@ class BeerControllerIT {
     }
 
     @Test
-    void empty() {
+    void testListBeers() {
+        List<BeerDTO> dtos = beerController.listBeers(null, null);
 
+        assertThat(dtos.size()).isEqualTo(NUMBER_OF_BEERS);
     }
 
     @Test
-    void testListBeers() {
-        List<BeerDTO> dtos = beerController.listBeers();
+    void testListBeersByName() throws Exception {
+        mockMvc.perform(get(BEER_API_URL)
+                .queryParam("beerName", "IPA"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(336)));
+    }
 
-        assertThat(dtos.size()).isEqualTo(NUMBER_OF_BEERS);
+    @Test
+    void testListBeersByNameAndStyle() throws Exception {
+        mockMvc.perform(get(BEER_API_URL)
+                        .queryParam("beerName", "IPA")
+                        .queryParam("beerStyle", BeerStyle.IPA.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(310)));
     }
 
     @Rollback
@@ -79,7 +92,7 @@ class BeerControllerIT {
     @Test
     void testEmptyList() {
         beerRepository.deleteAll();
-        List<BeerDTO> dtos = beerController.listBeers();
+        List<BeerDTO> dtos = beerController.listBeers(null, null);
 
         assertThat(dtos.size()).isEqualTo(0);
     }

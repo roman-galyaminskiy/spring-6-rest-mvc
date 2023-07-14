@@ -4,18 +4,18 @@ import guru.springframework.spring6restmvc.entities.Beer;
 import guru.springframework.spring6restmvc.exceptions.NotFoundException;
 import guru.springframework.spring6restmvc.mappers.BeerMapper;
 import guru.springframework.spring6restmvc.model.BeerDTO;
+import guru.springframework.spring6restmvc.model.BeerStyle;
 import guru.springframework.spring6restmvc.repositories.BeerRepository;
 import guru.springframework.spring6restmvc.services.BeerService;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Primary
 @RequiredArgsConstructor
@@ -27,9 +27,20 @@ public class BeerServiceJPAImpl implements BeerService {
     private final BeerMapper beerMapper;
 
     @Override
-    public List<BeerDTO> listBeers() {
-        return beerRepository.findAll()
-                .stream()
+    public List<BeerDTO> listBeers(String beerName, BeerStyle beerStyle) {
+        List<Beer> dtos = new ArrayList<>();
+
+        if (StringUtils.isBlank(beerName) && beerStyle == null) {
+            dtos.addAll(beerRepository.findAll());
+        } else if (!StringUtils.isBlank(beerName) && beerStyle == null) {
+            dtos.addAll(
+                beerRepository.findAllByBeerNameLike("%" + beerName + "%"));
+        } else if (!StringUtils.isBlank(beerName) && beerStyle != null) {
+            dtos.addAll(
+                beerRepository.findAllByBeerNameLikeAndBeerStyle("%" + beerName + "%", beerStyle));
+        }
+
+        return dtos.stream()
                 .map(beerMapper::entityToDto)
                 .toList();
     }
