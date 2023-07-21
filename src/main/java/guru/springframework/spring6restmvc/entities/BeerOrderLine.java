@@ -1,10 +1,9 @@
 package guru.springframework.spring6restmvc.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -15,19 +14,28 @@ import java.time.LocalDateTime;
  * Created by jt, Spring Framework Guru.
  */
 
+@Entity
 @Getter
+@Setter
 @SuperBuilder
-@MappedSuperclass
 @NoArgsConstructor
-public class VersionedEntity extends BaseEntity {
+public class BeerOrderLine extends VersionedEntity {
 
-    @Version
-    protected Integer version;
+    @ManyToOne
+    private Beer beer;
+
+    @ManyToOne
+    private BeerOrder beerOrder;
+
+    private Integer orderQuantity;
+
+    private Integer quantityAllocated;
 
     @CreationTimestamp
-    @Column(updatable = false)
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdDate;
 
     @UpdateTimestamp
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updateDate;
 }

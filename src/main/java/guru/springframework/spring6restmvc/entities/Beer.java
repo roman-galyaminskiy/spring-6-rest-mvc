@@ -3,6 +3,7 @@ package guru.springframework.spring6restmvc.entities;
 import guru.springframework.spring6restmvc.model.BeerStyle;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,6 +13,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by jt, Spring Framework Guru.
@@ -39,29 +42,20 @@ public class Beer extends VersionedEntity {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @CreationTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdDate;
+    @OneToMany(mappedBy = "beer")
+    Set<BeerOrderLine> beerOrderLines;
 
-    @UpdateTimestamp
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime updateDate;
+    @Builder.Default
+    @ManyToMany(mappedBy = "beers")
+    Set<Category> categories = new HashSet<>();
 
-    // public Beer() {
-    //     super();
-    //     System.out.println("Beer constructor");
-    //     System.out.println(super.getId());
-    // }
-    //
-    // @Builder
-    // public Beer(Integer version, String beerName, BeerStyle beerStyle, String upc, Integer quantityOnHand, BigDecimal price, LocalDateTime createdDate, LocalDateTime updateDate) {
-    //     super(version);
-    //     this.beerName = beerName;
-    //     this.beerStyle = beerStyle;
-    //     this.upc = upc;
-    //     this.quantityOnHand = quantityOnHand;
-    //     this.price = price;
-    //     this.createdDate = createdDate;
-    //     this.updateDate = updateDate;
-    // }
+    public void addCategory(Category category) {
+        categories.add(category);
+        category.getBeers().add(this);
+    }
+
+    public void removeCategory(Category category) {
+        categories.remove(category);
+        category.getBeers().remove(this);
+    }
 }

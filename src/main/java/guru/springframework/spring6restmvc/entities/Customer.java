@@ -1,7 +1,10 @@
 package guru.springframework.spring6restmvc.entities;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.Email;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,6 +13,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by jt, Spring Framework Guru.
@@ -22,12 +27,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Customer extends VersionedEntity {
     private String name;
-    @CreationTimestamp
-    private LocalDateTime createdDate;
 
     @Email
     private String email;
 
-    @UpdateTimestamp
-    private LocalDateTime updateDate;
+    @Builder.Default
+    @OneToMany(mappedBy = "customer")
+    private Set<BeerOrder> beerOrders = new HashSet<>();
 }
